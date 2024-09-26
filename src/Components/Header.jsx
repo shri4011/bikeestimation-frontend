@@ -7,7 +7,20 @@ import IconButton from "@mui/material/IconButton";
 import { Avatar, Stack } from "@mui/material";
 import headerLogo from "../assets/images/logo.jpg";
 
-export default function Header() {
+export default function Header({ globaImage }) {
+  let image = "";
+  let title = "Test Automobiles";
+  if (localStorage.getItem("globalImage") !== null) {
+    // debugger
+    image = JSON.parse(localStorage.getItem("globalImage"))?.image;
+    title = JSON.parse(localStorage.getItem("globalImage"))?.title;
+  }
+  // const isImage = localStorage.getItem("globalImage") || {} ;
+  // let image = ""
+  // if(isImage){
+  //   image = JSON.parse(isImage)?.image
+  // }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -21,11 +34,14 @@ export default function Header() {
           >
             {/* <SettingsSuggestIcon /> */}
             <Stack direction="row" spacing={2}>
-              <Avatar alt="Remy Sharp" src={headerLogo} />
+              <Avatar
+                alt="Remy Sharp"
+                src={`data:image/png;base64, ${image}`}
+              />
             </Stack>
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Test Automobiles
+            {title}
           </Typography>
         </Toolbar>
       </AppBar>

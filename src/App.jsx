@@ -2,15 +2,16 @@ import React, { useEffect, useState, useRef } from "react";
 import Box from "@mui/material/Box";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
-import ArchiveIcon from "@mui/icons-material/Archive";
 import Paper from "@mui/material/Paper";
 import AddBikeEstimation from "./Pages/AddBikeEstimation";
 import Dashboard from "./Pages/Dashboard";
-import DummyTest from "./Pages/DummyTest";
+import AppCustomization from "./Pages/AppCustomization";
 import { Container, Grid2 } from "@mui/material";
 import Header from "./Components/Header";
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import AddIcon from '@mui/icons-material/Add';
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import AddIcon from "@mui/icons-material/Add";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import CalculateIcon from '@mui/icons-material/Calculate';
 
 function refreshMessages() {
   const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
@@ -26,6 +27,7 @@ export default function App() {
   const [messages, setMessages] = useState(() => refreshMessages());
   const [editInfo, setEditInfo] = useState({});
   const [isEdit, setIsEdit] = useState(false);
+  const [globaImage, setGlobalImage] = useState("");
 
   useEffect(() => {
     ref.current.ownerDocument.body.scrollTop = 0;
@@ -34,7 +36,7 @@ export default function App() {
 
   return (
     <Grid2>
-      <Header />
+      <Header globaImage={globaImage} />
       <Container>
         <Grid2 spacing={2}>
           {value === 0 && (
@@ -43,17 +45,11 @@ export default function App() {
               setEditInfo={setEditInfo}
               setValue={setValue}
               setIsEdit={setIsEdit}
+              setGlobalImage={setGlobalImage}
             />
           )}
           {value === 1 && <AddBikeEstimation />}
-          {value === 2 && <DummyTest />}
-          {/* {value === 1 ? (
-            <AddBikeEstimation editInfo={editInfo} isEdit={isEdit} setIsEdit={setIsEdit}/>
-          ) : value === 2 ? (
-            <DummyTest />
-          ) : (
-            <Dashboard setEditInfo={setEditInfo} setValue={setValue} setIsEdit={setIsEdit}/>
-          )} */}
+          {value === 2 && <AppCustomization />}
         </Grid2>
 
         <Box sx={{ pb: 7 }} ref={ref}>
@@ -68,12 +64,12 @@ export default function App() {
                 setValue(newValue);
               }}
             >
-              <BottomNavigationAction label="Dashoard" icon={<DashboardIcon />} />
               <BottomNavigationAction
-                label="Estimation"
-                icon={<AddIcon />}
+                label="Dashoard"
+                icon={<DashboardIcon />}
               />
-              <BottomNavigationAction label="Archive" icon={<ArchiveIcon />} />
+              <BottomNavigationAction label="Bike Estimation" icon={<CalculateIcon />} />
+              <BottomNavigationAction label="Customization" icon={<ManageAccountsIcon />} />
             </BottomNavigation>
           </Paper>
         </Box>

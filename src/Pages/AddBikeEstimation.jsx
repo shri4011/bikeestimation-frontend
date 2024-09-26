@@ -223,6 +223,7 @@ const AddBikeEstimation = (props) => {
           console.error(error);
         });
     } else {
+      setOpen(true);
       fetch("https://bikeestimation-2.onrender.com/api/bikesEstimation", {
         method: "POST", // You can change this to POST, DELETE, etc.
         headers: {
@@ -235,11 +236,13 @@ const AddBikeEstimation = (props) => {
         .then((response) => response.json())
         .then((data) => {
           if (data) {
+            setOpen(false);
             setSnackbarStatus(true);
             setSnackMessage("Servicing Information Added");
           }
         })
         .catch((error) => {
+          setOpen(false);
           setSnackbarStatus(true);
           console.error(error);
         });
