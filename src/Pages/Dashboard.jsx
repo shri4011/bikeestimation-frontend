@@ -14,7 +14,7 @@ import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import ShareIcon from '@mui/icons-material/Share';
 import {
   Backdrop,
   Button,
@@ -177,6 +177,7 @@ function Row(props) {
             aria-label="expand row"
             size="small"
             onClick={async () => {
+              showLoading(true)
               // if (navigator.share && row?.pdfUrl) {
               //   try {
               //     fetch(row?.pdfUrl)
@@ -224,20 +225,21 @@ function Row(props) {
               const response = await fetch(row?.pdfUrl);
               const fileBlob = await response.blob();
 
-              const file = new File([fileBlob], "hello.pdf", {
+              const file = new File([fileBlob], `${row?.name}.pdf`, {
                 type: "application/pdf",
               });
 
               if (navigator.canShare({ files: [file] })) {
                 await navigator.share({
                   files: [file],
-                  title: "Shared PDF",
-                  text: "Here is the PDF document!",
+                  title: `Your Vehicle is Ready! 🚗🔧`,
+                  text: `Thank you for choosing us for your vehicle's servicing needs! We're happy to inform you that the service has been successfully completed by our mechanic. Your is now ready for pickup.`,
                 });
               }
+              showLoading(false)
             }}
           >
-            <WhatsAppIcon />
+            <ShareIcon />
           </IconButton>
         </TableCell>
       </TableRow>
