@@ -92,14 +92,17 @@ function Row(props) {
 
   const generatePDF = (url) => {
     if (url) {
-      fetch(url).then(function (t) {
-        return t.blob().then((b) => {
-          var a = document.createElement("a");
-          a.href = URL.createObjectURL(b);
-          a.setAttribute("download", row?.name || "Vehical pdf");
-          a.click();
-        });
-      });
+      fetch("https://bikeestimation-2.onrender.com/public/MH13ED4011.pdf").then(
+        function (t) {
+          // debugger
+          return t.blob().then((b) => {
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(b);
+            a.setAttribute("download", row?.name || "Vehical pdf");
+            a.click();
+          });
+        }
+      );
     } else {
       setTimeout(() => {
         setSnackbarStatus(false);
@@ -173,48 +176,61 @@ function Row(props) {
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => {
-              if (navigator.share && row?.pdfUrl) {
-                try {
-                  fetch(row?.pdfUrl)
-                    .then((response) => response.blob()) // Fetch the PDF as a Blob
-                    .then(async (blob) => {
-                      // Convert Blob to Base64 using FileReader
-                      const reader = new FileReader();
-                      reader.onloadend = async function () {
-                        // The result is the base64 string
-                        const base64Data = reader.result;
+            onClick={async () => {
+              // if (navigator.share && row?.pdfUrl) {
+              //   try {
+              //     fetch(row?.pdfUrl)
+              //       .then((response) => response.blob()) // Fetch the PDF as a Blob
+              //       .then(async (blob) => {
+              //         // Convert Blob to Base64 using FileReader
+              //         const reader = new FileReader();
+              //         reader.onloadend = async function () {
+              //           // The result is the base64 string
+              //           const base64Data = reader.result;
 
-                        // Log base64 string to console (you can use it elsewhere)
-                        console.log(base64Data);
+              //           // Log base64 string to console (you can use it elsewhere)
+              //           console.log(base64Data);
 
-                        const pdfBlob = base64ToBlob(base64Data);
+              //           const pdfBlob = base64ToBlob(base64Data);
 
-                        // Create a File object from the Blob (File is needed for navigator.share)
-                        const file = new File([pdfBlob], "document.pdf", {
-                          type: "application/pdf",
-                        });
+              //           // Create a File object from the Blob (File is needed for navigator.share)
+              //           const file = new File([pdfBlob], "document.pdf", {
+              //             type: "application/pdf",
+              //           });
 
-                        await navigator.share({
-                          files: [file],
-                          title: "Share PDF",
-                          text: "Check out this PDF document",
-                        });
-                        console.log("Shared successfully");
-                      };
-                      reader.readAsDataURL(blob);
-                    })
-                    .catch((err) =>
-                      console.error("Error fetching the PDF:", err)
-                    );
-                } catch (error) {
-                  console.error("Error sharing the file:", error);
-                }
-              } else {
-                alert("Web Share API is not supported in your browser.");
+              //           // await navigator.share({
+              //           //   files: [file],
+              //           //   title: "Share PDF",
+              //           //   text: "Check out this PDF document",
+              //           // });
+
+              //           if (navigator.canShare({ file })) {
+              //             await navigator.share({ file });
+              //           }
+              //           console.log("Shared successfully");
+              //         };
+
+              //         reader.readAsDataURL(blob);
+              //       })
+              //       .catch((err) =>
+              //         console.error("Error fetching the PDF:", err)
+              //       );
+              //   } catch (error) {
+              //     console.error("Error sharing the file:", error);
+              //   }
+              // } else {
+              //   alert("Web Share API is not supported in your browser.");
+              // }
+              const response = await fetch(row?.pdfUrl);
+              const buffer = await response.arrayBuffer();
+
+              const pdf = new File([buffer], "hello.pdf", {
+                type: "application/pdf",
+              });
+              const files = [pdf];
+              if (navigator.canShare({ files })) {
+                await navigator.share({ files });
               }
-
-              //     // create the blob object with content-type "application/pdf"
             }}
           >
             <WhatsAppIcon />
