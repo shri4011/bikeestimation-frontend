@@ -14,6 +14,7 @@ import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import {
   Backdrop,
   Button,
@@ -33,8 +34,10 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "jspdf-autotable";
 import Header from "../Components/Header";
+import createPdfAndBlobData from "../assets/CreatePdfFile";
+import { API_URL } from "../Constant";
 
-function createData(_id, name, calories, fat, carbs, protein, history) {
+function createData(_id, name, calories, fat, carbs, protein, pdfUrl, history) {
   return {
     _id,
     name,
@@ -42,6 +45,7 @@ function createData(_id, name, calories, fat, carbs, protein, history) {
     fat,
     carbs,
     protein,
+    pdfUrl,
     history,
   };
 }
@@ -55,8 +59,8 @@ function Row(props) {
     setShowDailog,
     getEstimationTableDataList,
     showLoading,
-    setPdfRow,
-    pdfImage,
+    setSnackbarStatus,
+    setMessages,
   } = props;
   const [open, setOpen] = useState(false);
   const [pdfRowData, setPdfRowData] = useState({});
@@ -64,18 +68,15 @@ function Row(props) {
   const deleteEstimation = () => {
     const { _id } = row;
     showLoading(true);
-    fetch(
-      "https://bikeestimation-2.onrender.com/api/bikesEstimation/deleteEstimationDetatils",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          _id: _id,
-        }),
-      }
-    )
+    fetch(`${API_URL}/api/bikesEstimation/deleteEstimationDetatils`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id: _id,
+      }),
+    })
       .then((response) => response.json())
       .then((data) => {
         showLoading(false);
@@ -89,132 +90,36 @@ function Row(props) {
       });
   };
 
-  let vehicleDetails = {
-    vehicalNumber: "",
-    ownerName: "",
-    mobileNumber: "",
-    vehicalType: "",
-    vehicalComapny: "",
-    vehicalModel: "",
-  };
-
-  let partsList = [];
-
-  let servicingList = [];
-
-  const generatePDF = () => {
-    fetch(
-      `https://bikeestimation-2.onrender.com/api/bikesEstimation/${row?._id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          vehicleDetails = {
-            vehicalNumber: data?.vehicalNumber,
-            ownerName: data?.ownerName,
-            mobileNumber: data?.mobileNumber,
-            vehicalType: data?.vehicalType,
-            vehicalComapny: data?.vehicalComapny,
-            vehicalModel: data?.vehicalModel,
-          };
-          partsList = data?.partsList;
-          servicingList = data?.servicingList;
-        }
-
-        let billSubtotal = data?.billSubtotal;
-        let payableAmount = data?.payableAmount;
-        const doc = new jsPDF();
-        let image = "";
-        let title = "";
-        if (localStorage.getItem("globalImage") !== null) {
-          image = JSON.parse(localStorage.getItem("globalImage"))?.image;
-          title = JSON.parse(localStorage.getItem("globalImage"))?.title;
-        }
-
-        doc.addImage(image, "PNG", 171, 10, 25, 24);
-
-        // Add a title
-        doc.setFontSize(18);
-        doc.text(title, 14, 22);
-
-        // Add Vehicle Details
-        doc.setFontSize(14);
-        doc.text("Vehicle Details", 14, 30);
-        doc.autoTable({
-          startY: 35,
-          head: [
-            [
-              "Vehicle Number",
-              "Owner Name",
-              "Mobile Number",
-              "Vehicle Type",
-              "Vehicle Company",
-              "Vehicle Model",
-            ],
-          ],
-          body: [
-            [
-              vehicleDetails.vehicalNumber,
-              vehicleDetails.ownerName,
-              vehicleDetails.mobileNumber,
-              vehicleDetails.vehicalType,
-              vehicleDetails.vehicalComapny,
-              vehicleDetails.vehicalModel,
-            ],
-          ],
+  const generatePDF = (url) => {
+    if (url) {
+      fetch(url).then(function (t) {
+        return t.blob().then((b) => {
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(b);
+          a.setAttribute("download", row?.name || "Vehical pdf");
+          a.click();
         });
-
-        // Add a Parts List Table
-        doc.text("Parts List", 14, doc.lastAutoTable.finalY + 10);
-        doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 15,
-          head: [["Type", "Company", "Product", "Price", "Quantity", "Total"]],
-          body: partsList.map((part) => [
-            part.type,
-            part.company,
-            part.product,
-            part.price,
-            part.quantity,
-            part.total,
-          ]),
-        });
-
-        // Add a Servicing List Table
-        doc.text("Servicing List", 14, doc.lastAutoTable.finalY + 10);
-        doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 15,
-          head: [
-            ["Service Type", "Service Option", "Price", "Quantity", "Total"],
-          ],
-          body: servicingList.map((service) => [
-            service.serviceType,
-            service.serviceOption,
-            service.price,
-            service.quantity,
-            service.total,
-          ]),
-        });
-
-        doc.text("Amount Details", 14, doc.lastAutoTable.finalY + 10);
-        doc.autoTable({
-          startY: doc.lastAutoTable.finalY + 15,
-          head: [["Bill sub total", "Payable amount"]],
-          body: [[billSubtotal, payableAmount]],
-        });
-
-        // Save the PDF
-        doc.save("bike-estimation.pdf");
-      })
-      .catch((error) => {
-        console.error(error);
       });
+    } else {
+      setTimeout(() => {
+        setSnackbarStatus(false);
+      }, 3000);
+      setSnackbarStatus(true);
+      setMessages("Pdf url not found...");
+    }
   };
+
+  function base64ToBlob(base64Data, contentType = "application/pdf") {
+    const byteCharacters = atob(base64Data.split(",")[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: contentType });
+  }
 
   return (
     <>
@@ -260,22 +165,59 @@ function Row(props) {
             aria-label="expand row"
             size="small"
             onClick={() => {
-              // setPdfRow(row?._id);
-
-              // setTimeout(() => {
-              //   debugger
-              //   const getTable = document.getElementById("pdf-content");
-              //   const childElement = getTable.querySelector(".child-class");
-              //   if (childElement) {
-              //     childElement.click();
-              //   }
-              // }, 1500);
-              generatePDF();
-
-              // createPdf(row);
+              generatePDF(row?.pdfUrl);
             }}
           >
             <PictureAsPdfIcon />
+          </IconButton>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => {
+              if (navigator.share && row?.pdfUrl) {
+                try {
+                  fetch(row?.pdfUrl)
+                    .then((response) => response.blob()) // Fetch the PDF as a Blob
+                    .then(async (blob) => {
+                      // Convert Blob to Base64 using FileReader
+                      const reader = new FileReader();
+                      reader.onloadend = async function () {
+                        // The result is the base64 string
+                        const base64Data = reader.result;
+
+                        // Log base64 string to console (you can use it elsewhere)
+                        console.log(base64Data);
+
+                        const pdfBlob = base64ToBlob(base64Data);
+
+                        // Create a File object from the Blob (File is needed for navigator.share)
+                        const file = new File([pdfBlob], "document.pdf", {
+                          type: "application/pdf",
+                        });
+
+                        await navigator.share({
+                          files: [file],
+                          title: "Share PDF",
+                          text: "Check out this PDF document",
+                        });
+                        console.log("Shared successfully");
+                      };
+                      reader.readAsDataURL(blob);
+                    })
+                    .catch((err) =>
+                      console.error("Error fetching the PDF:", err)
+                    );
+                } catch (error) {
+                  console.error("Error sharing the file:", error);
+                }
+              } else {
+                alert("Web Share API is not supported in your browser.");
+              }
+
+              //     // create the blob object with content-type "application/pdf"
+            }}
+          >
+            <WhatsAppIcon />
           </IconButton>
         </TableCell>
       </TableRow>
@@ -364,16 +306,11 @@ const AlertDialog = (props) => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancle</Button>
-          {/* <Button onClick={handleClose} autoFocus>
-            Edit
-          </Button> */}
         </DialogActions>
       </Dialog>
     </>
   );
 };
-
-
 
 export default function Dashboard(props) {
   const [estimationTableList, setEstimationTableList] = useState([]);
@@ -381,9 +318,8 @@ export default function Dashboard(props) {
   const [open, setOpen] = useState(false);
   const [snackckbarStatus, setSnackbarStatus] = useState(false);
   const [showDailog, setShowDailog] = useState(false);
-  const [pdfRow, setPdfRow] = useState(null);
-  const [pdfData, setPdfData] = useState({});
   const [pdfImage, setPdfImage] = useState("");
+  const [message, setMessages] = useState("Something wents wroung");
 
   const getEstimationTableDataList = () => {
     setOpen(true);
@@ -391,7 +327,7 @@ export default function Dashboard(props) {
       page: 1,
       limit: 10,
     };
-    fetch("https://bikeestimation-2.onrender.com/api/bikesEstimation/getList", {
+    fetch(`${API_URL}/api/bikesEstimation/getList`, {
       //   mode: "no-cors",
       method: "POST", // You can change this to POST, DELETE, etc.
       headers: {
@@ -433,6 +369,7 @@ export default function Dashboard(props) {
               item?.vehicalNumber,
               item?.billSubtotal,
               item?.payableAmount,
+              item?.pdfUrl || null,
               history
             );
           });
@@ -448,7 +385,7 @@ export default function Dashboard(props) {
   };
 
   const getPdfImage = () => {
-    fetch("https://bikeestimation-2.onrender.com/api/bikesEstimation/images", {
+    fetch(`${API_URL}/api/bikesEstimation/images`, {
       method: "POST", // You can change this to POST, DELETE, etc.
       headers: {
         "Content-Type": "application/json", // Send the request as JSON
@@ -474,10 +411,13 @@ export default function Dashboard(props) {
     }
   }, []);
 
+  const handleCloseSnackBar = () => {
+    setSnackbarStatus(false);
+  };
+
   return (
     <>
       <TableContainer component={Paper} sx={{ marginTop: "30px" }}>
-        {console.log("editRow_____", pdfRow)}
         <Table aria-label="collapsible table">
           <TableHead>
             <TableRow>
@@ -501,8 +441,9 @@ export default function Dashboard(props) {
                 setShowDailog={setShowDailog}
                 getEstimationTableDataList={getEstimationTableDataList}
                 showLoading={setOpen}
-                setPdfRow={setPdfRow}
                 pdfImage={pdfImage}
+                setSnackbarStatus={setSnackbarStatus}
+                setMessages={setMessages}
               />
             ))}
           </TableBody>
@@ -518,13 +459,11 @@ export default function Dashboard(props) {
         <Snackbar
           open={snackckbarStatus}
           autoHideDuration={5000}
-          // onClose={handleClose}
-          message="Something wents wroung"
+          onClose={handleCloseSnackBar}
+          message={message}
         />
       </Grid2>
-      <Grid2>
-
-      </Grid2>
+      <Grid2></Grid2>
       <Grid2>
         <AlertDialog
           showDailog={showDailog}

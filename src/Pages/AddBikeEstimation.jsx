@@ -11,6 +11,8 @@ import React, { useEffect, useState, useRef } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import Divider from "@mui/material/Divider";
+import { API_URL } from "../Constant";
+
 
 const lables = {
   serviceType: "Service Type",
@@ -76,7 +78,7 @@ const AddBikeEstimation = (props) => {
     if (props?.edit && props?.editInfo) {
       setOpen(true);
       fetch(
-        `https://bikeestimation-2.onrender.com/api/bikesEstimation/${props?.editInfo?._id}`,
+        `${API_URL}/${props?.editInfo?._id}`,
         {
           method: "GET",
           headers: {
@@ -199,7 +201,7 @@ const AddBikeEstimation = (props) => {
 
     if (props?.edit && props?.editInfo) {
       fetch(
-        "https://bikeestimation-2.onrender.com/api/bikesEstimation/getEstimationDetatils",
+        `${API_URL}/api/bikesEstimation/getEstimationDetatils`,
         {
           method: "POST", // You can change this to POST, DELETE, etc.
           headers: {
@@ -224,7 +226,7 @@ const AddBikeEstimation = (props) => {
         });
     } else {
       setOpen(true);
-      fetch("https://bikeestimation-2.onrender.com/api/bikesEstimation", {
+      fetch(`${API_URL}/api/bikesEstimation`, {
         method: "POST", // You can change this to POST, DELETE, etc.
         headers: {
           "Content-Type": "application/json", // Send the request as JSON

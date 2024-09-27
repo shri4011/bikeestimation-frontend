@@ -6,6 +6,7 @@ import {
   TextField,
 } from "@mui/material";
 import React, { useState } from "react";
+import { API_URL } from "../Constant";
 
 const AppCustomization = () => {
   const [file, setFile] = React.useState(null);
@@ -38,7 +39,7 @@ const AppCustomization = () => {
     setOpen(true);
     try {
       const response = await fetch(
-        "https://bikeestimation-2.onrender.com/api/bikesEstimation/upload",
+        `${API_URL}/api/bikesEstimation/upload`,
         {
           method: "POST",
           body: formData,
