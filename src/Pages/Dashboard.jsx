@@ -222,14 +222,18 @@ function Row(props) {
               //   alert("Web Share API is not supported in your browser.");
               // }
               const response = await fetch(row?.pdfUrl);
-              const buffer = await response.arrayBuffer();
+              const fileBlob = await response.blob();
 
-              const pdf = new File([buffer], "hello.pdf", {
+              const file = new File([fileBlob], "hello.pdf", {
                 type: "application/pdf",
               });
-              const files = [pdf];
-              if (navigator.canShare({ files })) {
-                await navigator.share({ files });
+
+              if (navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                  files: [file],
+                  title: "Shared PDF",
+                  text: "Here is the PDF document!",
+                });
               }
             }}
           >
