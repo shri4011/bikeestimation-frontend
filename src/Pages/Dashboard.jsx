@@ -220,8 +220,9 @@ function Row(props) {
                 const response = await fetch(row?.pdfUrl);
                 const fileBlob = await response.blob();
 
-                const file = new File([fileBlob], `${row?.name}.pdf`, {
+                const file = new File([fileBlob], row?.name + ".pdf", {
                   type: fileBlob?.type,
+                  lastModified: Date.now(),
                 });
 
                 if ("canShare" in navigator) {
@@ -233,7 +234,7 @@ function Row(props) {
                 }
                 showLoading(false);
               } catch (error) {
-                alert(error?.message)
+                alert(error?.message);
                 showLoading(false);
               }
             }}
