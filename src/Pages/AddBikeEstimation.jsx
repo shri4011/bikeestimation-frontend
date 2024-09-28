@@ -12,7 +12,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import Divider from "@mui/material/Divider";
 import { API_URL } from "../Constant";
-
+import BackdropLoader from "../Components/BackdropLoader";
 
 const lables = {
   serviceType: "Service Type",
@@ -26,6 +26,7 @@ const lables = {
 };
 
 const AddBikeEstimation = (props) => {
+  const { setValue } = props;
   const [estimationUserBasicDetails, seteEstimationUserBasicDetails] = useState(
     [
       {
@@ -72,20 +73,17 @@ const AddBikeEstimation = (props) => {
   const [payableAmount, setPayableAmount] = useState(0);
   const [open, setOpen] = useState(false);
   const [snackckbarStatus, setSnackbarStatus] = useState(false);
-  const [snackMessgae, setSnackMessage] = useState("Something wents wroung");
+  const [snackMessgae, setSnackMessage] = useState("Something went wrong");
 
   useEffect(() => {
     if (props?.edit && props?.editInfo) {
       setOpen(true);
-      fetch(
-        `${API_URL}/${props?.editInfo?._id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      )
+      fetch(`${API_URL}/api/bikesEstimation/${props?.editInfo?._id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data) {
@@ -200,19 +198,16 @@ const AddBikeEstimation = (props) => {
     };
 
     if (props?.edit && props?.editInfo) {
-      fetch(
-        `${API_URL}/api/bikesEstimation/getEstimationDetatils`,
-        {
-          method: "POST", // You can change this to POST, DELETE, etc.
-          headers: {
-            "Content-Type": "application/json", // Send the request as JSON
-          },
-          body: JSON.stringify({
-            _id: props?.editInfo?._id,
-            data: payload,
-          }),
-        }
-      )
+      fetch(`${API_URL}/api/bikesEstimation/getEstimationDetatils`, {
+        method: "POST", // You can change this to POST, DELETE, etc.
+        headers: {
+          "Content-Type": "application/json", // Send the request as JSON
+        },
+        body: JSON.stringify({
+          _id: props?.editInfo?._id,
+          data: payload,
+        }),
+      })
         .then((response) => response.json())
         .then((data) => {
           if (data) {
@@ -241,6 +236,7 @@ const AddBikeEstimation = (props) => {
             setOpen(false);
             setSnackbarStatus(true);
             setSnackMessage("Servicing Information Added");
+            setValue(0);
           }
         })
         .catch((error) => {
@@ -271,11 +267,11 @@ const AddBikeEstimation = (props) => {
             display: "flex",
             justifyContent: "flex-start",
             alignItems: "center",
-            margin: "20px",
+            margin: "20px 20px 0px 0px",
           }}
         >
           <Typography variant="h5" gutterBottom>
-            {!props?.edit && "Add Basic Deatils"}
+            {!props?.edit && "New Estimation"}
           </Typography>
         </Grid2>
         <Grid2
@@ -294,7 +290,7 @@ const AddBikeEstimation = (props) => {
               type={item?.type}
               name={item?.name}
               value={item?.value}
-              sx={{ width: "100%", marginTop: "20px" }}
+              sx={{ width: "100%", marginTop: !index ? "10px" : "20px" }}
               onChange={(text) => handleOnchange(text, index)}
             />
           ))}
@@ -307,7 +303,7 @@ const AddBikeEstimation = (props) => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            margin: "20px",
+            margin: "20px 0px",
           }}
         >
           <Grid2>
@@ -342,7 +338,7 @@ const AddBikeEstimation = (props) => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   width: "100%",
-                  margin: "20px",
+                  margin: "20px 0px",
                 }}
               >
                 <Grid2>
@@ -436,7 +432,7 @@ const AddBikeEstimation = (props) => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            margin: "20px",
+            margin: "20px 0px",
           }}
         >
           <Grid2>
@@ -585,13 +581,7 @@ const AddBikeEstimation = (props) => {
         >
           Submit
         </Button>
-        <Backdrop
-          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-          open={open}
-          //   onClick={handleClose}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
+        <BackdropLoader open={open} />
         <Grid2>
           <Snackbar
             open={snackckbarStatus}

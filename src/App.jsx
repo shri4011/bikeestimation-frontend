@@ -10,8 +10,8 @@ import { Container, Grid2 } from "@mui/material";
 import Header from "./Components/Header";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AddIcon from "@mui/icons-material/Add";
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import CalculateIcon from '@mui/icons-material/Calculate';
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import CalculateIcon from "@mui/icons-material/Calculate";
 
 function refreshMessages() {
   const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
@@ -48,8 +48,8 @@ export default function App() {
               setGlobalImage={setGlobalImage}
             />
           )}
-          {value === 1 && <AddBikeEstimation />}
-          {value === 2 && <AppCustomization />}
+          {value === 1 && <AddBikeEstimation setValue={setValue} />}
+          {value === 2 && <AppCustomization setValue={setValue} />}
         </Grid2>
 
         <Box sx={{ pb: 7 }} ref={ref}>
@@ -68,8 +68,14 @@ export default function App() {
                 label="Dashoard"
                 icon={<DashboardIcon />}
               />
-              <BottomNavigationAction label="Bike Estimation" icon={<CalculateIcon />} />
-              <BottomNavigationAction label="Customization" icon={<ManageAccountsIcon />} />
+              <BottomNavigationAction
+                label="Bike Estimation"
+                icon={<CalculateIcon />}
+              />
+              <BottomNavigationAction
+                label="Customization"
+                icon={<ManageAccountsIcon />}
+              />
             </BottomNavigation>
           </Paper>
         </Box>

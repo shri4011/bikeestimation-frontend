@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { API_URL } from "../Constant";
+import BackdropLoader from "../Components/BackdropLoader";
 
 const AppCustomization = () => {
   const [file, setFile] = React.useState(null);
@@ -85,17 +86,11 @@ const AppCustomization = () => {
             />
           </Grid2>
           <Button variant="contained" onClick={handleUpload} disabled={!file}>
-            Upload File
+            Save
           </Button>
           {file && <p>Selected file: {file.name}</p>}
         </div>
-
-        <Backdrop
-          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-          open={open}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
+        <BackdropLoader open={open}/>
       </Grid2>
     </>
   );

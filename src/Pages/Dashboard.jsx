@@ -14,7 +14,7 @@ import Paper from "@mui/material/Paper";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import ShareIcon from '@mui/icons-material/Share';
+import ShareIcon from "@mui/icons-material/Share";
 import {
   Backdrop,
   Button,
@@ -30,12 +30,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import AddBikeEstimation from "./AddBikeEstimation";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import "jspdf-autotable";
-import Header from "../Components/Header";
-import createPdfAndBlobData from "../assets/CreatePdfFile";
 import { API_URL } from "../Constant";
+import BackdropLoader from "../Components/BackdropLoader";
 
 function createData(_id, name, calories, fat, carbs, protein, pdfUrl, history) {
   return {
@@ -177,66 +174,70 @@ function Row(props) {
             aria-label="expand row"
             size="small"
             onClick={async () => {
-              showLoading(true)
-              // if (navigator.share && row?.pdfUrl) {
-              //   try {
-              //     fetch(row?.pdfUrl)
-              //       .then((response) => response.blob()) // Fetch the PDF as a Blob
-              //       .then(async (blob) => {
-              //         // Convert Blob to Base64 using FileReader
-              //         const reader = new FileReader();
-              //         reader.onloadend = async function () {
-              //           // The result is the base64 string
-              //           const base64Data = reader.result;
+              try {
+                showLoading(true);
+                // if (navigator.share && row?.pdfUrl) {
+                //   try {
+                //     fetch(row?.pdfUrl)
+                //       .then((response) => response.blob()) // Fetch the PDF as a Blob
+                //       .then(async (blob) => {
+                //         // Convert Blob to Base64 using FileReader
+                //         const reader = new FileReader();
+                //         reader.onloadend = async function () {
+                //           // The result is the base64 string
+                //           const base64Data = reader.result;
 
-              //           // Log base64 string to console (you can use it elsewhere)
-              //           console.log(base64Data);
+                //           // Log base64 string to console (you can use it elsewhere)
+                //           console.log(base64Data);
 
-              //           const pdfBlob = base64ToBlob(base64Data);
+                //           const pdfBlob = base64ToBlob(base64Data);
 
-              //           // Create a File object from the Blob (File is needed for navigator.share)
-              //           const file = new File([pdfBlob], "document.pdf", {
-              //             type: "application/pdf",
-              //           });
+                //           // Create a File object from the Blob (File is needed for navigator.share)
+                //           const file = new File([pdfBlob], "document.pdf", {
+                //             type: "application/pdf",
+                //           });
 
-              //           // await navigator.share({
-              //           //   files: [file],
-              //           //   title: "Share PDF",
-              //           //   text: "Check out this PDF document",
-              //           // });
+                //           // await navigator.share({
+                //           //   files: [file],
+                //           //   title: "Share PDF",
+                //           //   text: "Check out this PDF document",
+                //           // });
 
-              //           if (navigator.canShare({ file })) {
-              //             await navigator.share({ file });
-              //           }
-              //           console.log("Shared successfully");
-              //         };
+                //           if (navigator.canShare({ file })) {
+                //             await navigator.share({ file });
+                //           }
+                //           console.log("Shared successfully");
+                //         };
 
-              //         reader.readAsDataURL(blob);
-              //       })
-              //       .catch((err) =>
-              //         console.error("Error fetching the PDF:", err)
-              //       );
-              //   } catch (error) {
-              //     console.error("Error sharing the file:", error);
-              //   }
-              // } else {
-              //   alert("Web Share API is not supported in your browser.");
-              // }
-              const response = await fetch(row?.pdfUrl);
-              const fileBlob = await response.blob();
+                //         reader.readAsDataURL(blob);
+                //       })
+                //       .catch((err) =>
+                //         console.error("Error fetching the PDF:", err)
+                //       );
+                //   } catch (error) {
+                //     console.error("Error sharing the file:", error);
+                //   }
+                // } else {
+                //   alert("Web Share API is not supported in your browser.");
+                // }
+                const response = await fetch(row?.pdfUrl);
+                const fileBlob = await response.blob();
 
-              const file = new File([fileBlob], `${row?.name}.pdf`, {
-                type: "application/pdf",
-              });
-
-              if (navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                  files: [file],
-                  title: `Your Vehicle is Ready! 🚗🔧`,
-                  text: `Thank you for choosing us for your vehicle's servicing needs! We're happy to inform you that the service has been successfully completed by our mechanic. Your is now ready for pickup.`,
+                const file = new File([fileBlob], `${row?.name}.pdf`, {
+                  type: "application/pdf",
                 });
+
+                if (navigator.canShare({ files: [file] })) {
+                  await navigator.share({
+                    files: [file],
+                    title: `Your Vehicle is Ready! 🚗🔧`,
+                    text: `Thank you for choosing us for your vehicle's servicing needs! We're happy to inform you that the service has been successfully completed by our mechanic. Your is now ready for pickup.  🚗🔧`,
+                  });
+                }
+                showLoading(false);
+              } catch (err) {
+                showLoading(false);
               }
-              showLoading(false)
             }}
           >
             <ShareIcon />
@@ -314,7 +315,7 @@ const AlertDialog = (props) => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Edit servicing informations"}
+          {"Edit Estimation Details"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -341,7 +342,7 @@ export default function Dashboard(props) {
   const [snackckbarStatus, setSnackbarStatus] = useState(false);
   const [showDailog, setShowDailog] = useState(false);
   const [pdfImage, setPdfImage] = useState("");
-  const [message, setMessages] = useState("Something wents wroung");
+  const [message, setMessages] = useState("Something went wrong");
 
   const getEstimationTableDataList = () => {
     setOpen(true);
@@ -415,7 +416,6 @@ export default function Dashboard(props) {
     })
       .then((response) => response.json())
       .then((data) => {
-        // debugger
         if (data) {
           localStorage.setItem("globalImage", JSON.stringify(data));
         }
@@ -471,12 +471,7 @@ export default function Dashboard(props) {
           </TableBody>
         </Table>
       </TableContainer>
-      <Backdrop
-        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-        open={open}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
+      <BackdropLoader open={open} />
       <Grid2>
         <Snackbar
           open={snackckbarStatus}
@@ -485,7 +480,6 @@ export default function Dashboard(props) {
           message={message}
         />
       </Grid2>
-      <Grid2></Grid2>
       <Grid2>
         <AlertDialog
           showDailog={showDailog}
