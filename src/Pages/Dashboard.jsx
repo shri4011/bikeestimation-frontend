@@ -89,17 +89,14 @@ function Row(props) {
 
   const generatePDF = (url) => {
     if (url) {
-      fetch(url).then(
-        function (t) {
-          // debugger
-          return t.blob().then((b) => {
-            var a = document.createElement("a");
-            a.href = URL.createObjectURL(b);
-            a.setAttribute("download", row?.name || "Vehical pdf");
-            a.click();
-          });
-        }
-      );
+      fetch(url).then(function (t) {
+        return t.blob().then((b) => {
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(b);
+          a.setAttribute("download", row?.name || "Vehical pdf");
+          a.click();
+        });
+      });
     } else {
       setTimeout(() => {
         setSnackbarStatus(false);
@@ -224,10 +221,10 @@ function Row(props) {
                 const fileBlob = await response.blob();
 
                 const file = new File([fileBlob], `${row?.name}.pdf`, {
-                  type: "application/pdf",
+                  type: fileBlob?.type,
                 });
 
-                if (navigator.canShare({ files: [file] })) {
+                if ("canShare" in navigator) {
                   await navigator.share({
                     files: [file],
                     title: `Your Vehicle is Ready! 🚗🔧`,
@@ -236,7 +233,7 @@ function Row(props) {
                 }
                 showLoading(false);
               } catch (error) {
-                console.log(error)
+                alert(error?.message)
                 showLoading(false);
               }
             }}
