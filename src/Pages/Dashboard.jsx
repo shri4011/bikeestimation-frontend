@@ -235,7 +235,8 @@ function Row(props) {
                   });
                 }
                 showLoading(false);
-              } catch (err) {
+              } catch (error) {
+                console.log(error)
                 showLoading(false);
               }
             }}
