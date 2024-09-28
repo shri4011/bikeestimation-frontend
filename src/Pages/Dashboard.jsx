@@ -89,7 +89,7 @@ function Row(props) {
 
   const generatePDF = (url) => {
     if (url) {
-      fetch("https://bikeestimation-2.onrender.com/public/MH13ED4011.pdf").then(
+      fetch(url).then(
         function (t) {
           // debugger
           return t.blob().then((b) => {
